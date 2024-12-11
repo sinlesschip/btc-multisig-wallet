@@ -29,9 +29,9 @@ fn main() {
     let electrum_zpub1 = "Zpub6xYXMPAPepPzktBxjXVCGwzoNDjaoTd2zMFnas6ibyzn5oq5A1TWnFNvV5HhbXB3YANm2YxyY5gYo3XpL1hYP1YGaa5wcMAdYrqiD8a7p8o";
     let electrum_zpub2 = "Zpub6yk2ZNxZ9Grn6zTZbUWcFqkVJDRxNP36LT6pbD57Afdo4Ar6tAtYvUtWV34wqkVkrikBv2tEWef64L3Qm8Xo9fjRur8ZM6QKPZFVbicXZ1R";
 
-    // convert zpubs from electrum Zpub to xpub
-    let xpub1 = convert_to_xpub(&electrum_zpub1);
-    let xpub2 = convert_to_xpub(&electrum_zpub2);
+    // convert zpubs from electrum to xpub
+    let xpub1 = str_to_xpub(&electrum_zpub1);
+    let xpub2 = str_to_xpub(&electrum_zpub2);
 
     // sanity check
     assert_eq!(convert_xpub_to_zpub(&xpub1), electrum_zpub1);
@@ -59,7 +59,7 @@ fn main() {
 // We need to convert to a standard xpub so that the so that we can 
 // [0..4] is version number per bip32: https://en.bitcoin.it/wiki/BIP_0032#Serialization_format
 // can be used on any electrum pub key
-fn convert_to_xpub(pubk: &str) -> Xpub {
+fn str_to_xpub(pubk: &str) -> Xpub {
     let mut decoded_pubk = base58::decode_check(pubk).unwrap();
     decoded_pubk[0..4].iter_mut()
         .enumerate()
