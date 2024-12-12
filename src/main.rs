@@ -1,5 +1,5 @@
-use bitcoin::bip32::{Xpriv, Xpub};
-use bitcoin::{Address, KnownHrp, NetworkKind};
+use bitcoin::bip32::{Xpriv, Xpub, DerivationPath};
+use bitcoin::{Address, KnownHrp, NetworkKind, PrivateKey, PublicKey};
 use bitcoin::secp256k1::Secp256k1;
 use bip39::{Mnemonic, MnemonicType, Language, Seed};
 use bitcoin::blockdata::script::Builder;
@@ -19,19 +19,25 @@ fn main() {
     
     // derive xprv key from seed phrase
     let prvk = Xpriv::new_master(NetworkKind::Main, seed_bytes).unwrap();
+    let secp = Secp256k1::new();
+
+    // use m/1h path 
+    let path = DerivationPath::master();
+    let path = path.into_child(bitcoin::bip32::ChildNumber::Hardened { index: 1 });
+    let pkey_child = prvk.derive_priv(&secp, &path).unwrap();
+ 
     // ESDSA private key
-    let private = prvk.to_priv();
+    let private: PrivateKey = pkey_child.to_priv();
 
     // use private key + secp256k1 to derive ESDSA key and xpub
-    let secp = Secp256k1::new();
-    let public = private.public_key(&secp);
+    let public: PublicKey = private.public_key(&secp);
 
     let electrum_zpub1 = "Zpub6xYXMPAPepPzktBxjXVCGwzoNDjaoTd2zMFnas6ibyzn5oq5A1TWnFNvV5HhbXB3YANm2YxyY5gYo3XpL1hYP1YGaa5wcMAdYrqiD8a7p8o";
     let electrum_zpub2 = "Zpub6yk2ZNxZ9Grn6zTZbUWcFqkVJDRxNP36LT6pbD57Afdo4Ar6tAtYvUtWV34wqkVkrikBv2tEWef64L3Qm8Xo9fjRur8ZM6QKPZFVbicXZ1R";
 
     // convert zpubs from electrum to xpub
-    let xpub1 = str_to_xpub(&electrum_zpub1);
-    let xpub2 = str_to_xpub(&electrum_zpub2);
+    let xpub1: Xpub = str_to_xpub(&electrum_zpub1);
+    let xpub2: Xpub = str_to_xpub(&electrum_zpub2);
 
     // sanity check
     assert_eq!(convert_xpub_to_zpub(&xpub1), electrum_zpub1);
@@ -56,7 +62,7 @@ fn main() {
 
 // Electrum public keys have thier own versioning system for BIP32 xpub and xprv keys
 // https://electrum.readthedocs.io/en/latest/xpub_version_bytes.html
-// We need to convert to a standard xpub so that the so that we can 
+// We need to convert to a standard xpub so that the so that we can use it in the p2wsh script
 // [0..4] is version number per bip32: https://en.bitcoin.it/wiki/BIP_0032#Serialization_format
 // can be used on any electrum pub key
 fn str_to_xpub(pubk: &str) -> Xpub {
