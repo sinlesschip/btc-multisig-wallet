@@ -10,6 +10,8 @@ use bitcoin::base58;
 const ELECTRUM_ZPUB: [u8; 4] = [2, 170, 126, 211];
 // bip32 version number https://en.bitcoin.it/wiki/BIP_0032#Serialization_format
 const BTC_XPUB: [u8; 4] = [4, 136, 178, 30];
+const NETWORK: NetworkKind = NetworkKind::Main;
+const HRP: KnownHrp = KnownHrp::Mainnet;
 
 fn main() {
     // create seed with no password
@@ -18,7 +20,7 @@ fn main() {
     let seed_bytes: &[u8] = seed.as_bytes();
     
     // derive xprv key from seed phrase
-    let prvk = Xpriv::new_master(NetworkKind::Main, seed_bytes).unwrap();
+    let prvk = Xpriv::new_master(NETWORK, seed_bytes).unwrap();
     let secp = Secp256k1::new();
 
     // use m/1h path 
@@ -54,7 +56,7 @@ fn main() {
                 .push_opcode(opcodes::all::OP_CHECKMULTISIG);
 
     // bech32 encoded multisig address
-    let addr = Address::p2wsh(&scriptbuilder.as_script(), KnownHrp::Mainnet);
+    let addr = Address::p2wsh(&scriptbuilder.as_script(), HRP);
 
     println!("{:?}", addr);
 }
