@@ -4,5 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bitcoin={version="0.32.5", features=["rand-std"]}
+bitcoin={version="0.32.5", features=["rand-std", "serde"]}
 tiny-bip39="2.0.0"
+hex="0.4.3"
