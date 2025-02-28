@@ -120,3 +120,18 @@ fn convert_xpub_to_zpub(xpub: &Xpub) -> String {
     
     return  reencoded;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const ELECTRUM_ZPUB: &str = "Vpub5fDU8iUj46E5MhRVQ6LhSbcngM9o2yf3KuAuTHXB5xVFsQaA9NoGHzkNQFTMbtZMubuY2eajhSGMFu5ZTE3VC4os7DJFGhtgTxb8erdF3uG";
+
+    #[test]
+    fn conversion_from_string_to_xpub() {
+        let result: Xpub = str_to_xpub(ELECTRUM_ZPUB);
+        assert_eq!(convert_xpub_to_zpub(&result), ELECTRUM_ZPUB);
+
+    }
+
+}
